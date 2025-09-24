@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 
+
 # схема пайдентик
 
 
@@ -14,7 +15,7 @@ class TaskCreate(BaseModel):
 class TaskUpdate(BaseModel):
     title: Optional[str] = Field(None, max_length=255)
     description: Optional[str] = None
-    status: Optional[str] = None  # Enum можно добавить
+    status: Optional[bool] = None 
 
 
 class TaskRead(BaseModel):
@@ -24,6 +25,6 @@ class TaskRead(BaseModel):
     status: str
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
-        orm_mode = True  # важно, чтобы Pydantic понимал SQLAlchemy ORM объекты
+        from_attributes = True

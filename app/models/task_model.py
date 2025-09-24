@@ -1,15 +1,24 @@
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Boolean
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from app.db.database import Base
 
+
+
+class Base(DeclarativeBase):
+    pass
 
 
 
 class Task(Base):
     __tablename__ = "tasks"
 
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    description = Column(Text, default="")
-    
-# потом добавь функционал
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str]
+    description: Mapped[str]
+
+    status: Mapped[bool] = mapped_column(
+        Boolean(),
+        default=False,
+        nullable=False
+    )
+

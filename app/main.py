@@ -1,20 +1,15 @@
 import uvicorn
 from fastapi import FastAPI
-from app.db.database import init_db
-from app.api.v1.router import router as tasks_router
 
+from app.api.v1.router import router as tasks_router
+from app.api.v1.router import router_1 as tasks_router_1
 
 
 app = FastAPI()
 
-@app.on_event("startup")
-async def on_startup():
-    await init_db()
-
-
 
 app.include_router(tasks_router)
-
+app.include_router(tasks_router_1)
 
 
 
