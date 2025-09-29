@@ -34,14 +34,12 @@ class TaskRepository:
 
 
     @staticmethod
-    async def update_task(session: AsyncSession, task_id: int, data: TaskUpdate):
+    async def update_task(session: AsyncSession, task_id: int, status: bool):
         task = await session.get(Task, task_id)
         if not task:
             return None
         
-        for field, value in data.model_dump(exclude_unset=True).items():
-            if value is not None:
-                setattr(task, field, value)
+        task.status = status
 
         await session.commit()
         await session.refresh(task)

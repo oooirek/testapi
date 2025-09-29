@@ -10,14 +10,14 @@ from app.db.database import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.repository import TaskRepository
 from app.models.task_model import Base
-from app.schemas.schemas import TaskCreate, TaskUpdate
+from app.schemas.schemas import TaskCreate
 
 from app.db.database import engine
 
 
 
 router = APIRouter(
-    prefix="/tasks_v1",
+    prefix="/tasks",
     tags=["tasks"],
 )
 
@@ -51,7 +51,7 @@ async def get_task(
     ):
     task = await TaskRepository.get_task_by_id(session, task_id)
     if not task:
-        raise HTTPException(status_code=404, delail= "Task not found")
+        raise HTTPException(status_code=404, detail= "Task not found")
     return task
 
 
@@ -59,13 +59,12 @@ async def get_task(
 @router.patch("/{task_id}")
 async def update_task(
     task_id: int,
-    data: TaskUpdate,
     session: AsyncSession = Depends(get_session)
     ):
     
-    task = await TaskRepository.update_task(session, task_id, data)
+    task = await TaskRepository.update_task(session, task_id, True)
     if not task:
-        return {"error": "Task not found"}
+        raise HTTPException(status_code=404, detail= "Task not found")
     return task    
 
 

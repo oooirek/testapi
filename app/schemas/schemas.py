@@ -13,9 +13,7 @@ class TaskCreate(BaseModel):
 
 
 class TaskUpdate(BaseModel):
-    title: Optional[str] = Field(None, max_length=255)
-    description: Optional[str] = None
-    status: Optional[bool] = None 
+    status: bool
 
 
 class TaskRead(BaseModel):
