@@ -3,7 +3,7 @@ from sqlalchemy import select
 from app.models.task_model import Task
 from app.db.database import AsyncSession
 
-from app.schemas.schemas import TaskUpdate
+from app.schemas.task_schemas import TaskUpdate
 
 
 class TaskRepository:

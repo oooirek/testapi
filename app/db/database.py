@@ -4,6 +4,8 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 
 from fastapi import Depends
 
+from sqlalchemy.orm import DeclarativeBase
+
 
 
 engine = create_async_engine("sqlite+aiosqlite:///tasks.db")
@@ -19,3 +21,7 @@ SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 
 
+
+
+class Base(DeclarativeBase):
+    pass

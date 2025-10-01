@@ -9,7 +9,7 @@ from datetime import datetime
 
 class TaskCreate(BaseModel):
     title: str = Field(..., max_length=255)
-    description: Optional[str] = ""
+    description: Optional[str] = None
 
 
 class TaskUpdate(BaseModel):
@@ -24,5 +24,6 @@ class TaskRead(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True
+    }

@@ -3,6 +3,7 @@ from fastapi import FastAPI
 
 from app.api.v1.router import router as tasks_router
 from app.api.v1.router import router_1 as tasks_router_1
+from app.auth.routes import router as auth_router
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -27,7 +28,7 @@ app.add_middleware(
 
 app.include_router(tasks_router)
 app.include_router(tasks_router_1)
-
+app.include_router(auth_router)
 
 
 

@@ -10,7 +10,7 @@ from app.db.database import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.repository import TaskRepository
 from app.models.task_model import Base
-from app.schemas.schemas import TaskCreate
+from app.schemas.task_schemas import TaskCreate
 
 from app.db.database import engine
 
