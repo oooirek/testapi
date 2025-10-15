@@ -1,11 +1,8 @@
 from http.client import HTTPException
-from typing import Annotated
-from fastapi import APIRouter, Depends
-
+from fastapi import APIRouter, Depends, Request
 
 from fastapi import Depends
 from app.db.database import get_session
-
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.repository import TaskRepository
@@ -28,10 +25,19 @@ router_1 = APIRouter(
 
 @router.post("")
 async def add_task(
+    request: Request,
     task_create: TaskCreate,
     session: AsyncSession = Depends(get_session)
     ):
-    task = await TaskRepository.create_task(session, title=task_create.title, description=task_create.description)
+    user = request.state.user  # получаем пользователя из мидлвары
+    if not user:
+        return {"Error": "Unauthorized"}
+    task = await TaskRepository.create_task(
+        session,
+        title=task_create.title,
+        description=task_create.description,
+        user_id=user.id
+        )
     return task
 
 
@@ -39,7 +45,9 @@ async def add_task(
 async def get_all_task(
     session: AsyncSession = Depends(get_session)
     ):
-    tasks = await TaskRepository.get_all_tasks(session)
+    tasks = await TaskRepository.get_all_tasks(
+        session
+        )
     return tasks
 
 
@@ -49,7 +57,10 @@ async def get_task(
     task_id: int,
     session: AsyncSession = Depends(get_session)
     ):
-    task = await TaskRepository.get_task_by_id(session, task_id)
+    task = await TaskRepository.get_task_by_id(
+        session,
+        task_id
+        )
     if not task:
         raise HTTPException(status_code=404, detail= "Task not found")
     return task
@@ -62,7 +73,11 @@ async def update_task(
     session: AsyncSession = Depends(get_session)
     ):
     
-    task = await TaskRepository.update_task(session, task_id, True)
+    task = await TaskRepository.update_task(
+        session,
+        task_id,
+        True
+        )
     if not task:
         raise HTTPException(status_code=404, detail= "Task not found")
     return task    
@@ -73,7 +88,10 @@ async def delete_task(
     task_id: int,
     session: AsyncSession = Depends(get_session)
     ):
-    task = await TaskRepository.delete_task(session, task_id)
+    task = await TaskRepository.delete_task(
+        session,
+        task_id
+        )
     return {"msg": "success"}
 
 

@@ -1,3 +1,5 @@
+# created by virtualenv automatically
+*
 venv
 tasks.db
 __pycache__/database.cpython-313.pyc
@@ -5,3 +7,5 @@ __pycache__/main.cpython-313.pyc
 __pycache__/repository.cpython-313.pyc
 __pycache__/router.cpython-313.pyc
 __pycache__/schemas.cpython-313.pyc
+
+/certs
