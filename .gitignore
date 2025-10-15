@@ -1,11 +1,57 @@
 # created by virtualenv automatically
-*
-venv
+
+
 tasks.db
-__pycache__/database.cpython-313.pyc
-__pycache__/main.cpython-313.pyc
-__pycache__/repository.cpython-313.pyc
-__pycache__/router.cpython-313.pyc
-__pycache__/schemas.cpython-313.pyc
+
 
 /certs
+
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Linting
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+env.bak/
+
+
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
