@@ -1,41 +1,73 @@
-# app/middleware/auth_middleware.py
-
+from pathlib import Path
+from fastapi import Request, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from app.db.database import get_session
+from app.models.user_model import User
 import jwt
-from jwt import ExpiredSignatureError, InvalidTokenError
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-from app.db.database import async_session_maker
-from app.models.user_model import User  # твоя модель пользователя
-
-SECRET_KEY = "supersecretkey"
-ALGORITHM = "HS256" 
 
 
-class AuthMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        token = request.cookies.get("access_token")
-        request.state.user = None  # по умолчанию None
+# Пути к ключам
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+KEYS_DIR = BASE_DIR / "certs"
+PUBLIC_KEY_PATH = KEYS_DIR / "jwt-public.pem"
 
-        if token:
-            try:
-                payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-                user_id: int = payload.get("sub")
+# Читаем публичный ключ
+with open(PUBLIC_KEY_PATH, 'r') as f:
+    PUBLIC_KEY = f.read()
 
-                if user_id is not None:
-                    async with async_session_maker() as session:
-                        user = await session.get(User, user_id)
-                        if user:
-                            request.state.user = user
+ALGORITHM = "RS256"
 
-            except ExpiredSignatureError:
-                return JSONResponse({"detail": "Token expired"}, status_code=401)
-            except InvalidTokenError:
-                return JSONResponse({"detail": "Invalid token"}, status_code=401)
-            except Exception as e:
-                print("Auth middleware error:", e)
+async def verify_user_middleware(request: Request, call_next):
+    request.state.user = None  # ← чтобы всегда существовал атрибут
+    # Проверяем, начинается ли путь с /tasks
+    if request.url.path.startswith("/tasks"):
+        token = request.cookies.get("token")
+        if not token:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not authenticated"
+            )
 
-        # ⚠️ важно: вызов следующего слоя
-        response = await call_next(request)
-        return response
+        try:
+            # Декодируем токен с помощью публичного ключа
+            payload = jwt.decode(token, PUBLIC_KEY, algorithms=[ALGORITHM])
+            username: str = payload.get("sub")
+            if username is None:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Could not validate credentials"
+                )
+        except jwt.PyJWTError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials"
+            )
 
+        # Получаем сессию БД
+        session_gen = get_session()
+        session: AsyncSession = await anext(session_gen)
+
+        try:
+            result = await session.execute(select(User).where(User.username == username))
+            user = result.scalars().first()
+
+            if not user:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="User not found"
+                )
+
+            if not user.is_verified:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="User not verified"
+                )
+            
+            request.state.user = user
+            
+        finally:
+            await session_gen.aclose()
+
+    response = await call_next(request)
+    return response

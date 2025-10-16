@@ -38,7 +38,10 @@ def verify_password(password: str, hashed: str) -> bool:
 
 def create_gvt(username: str) -> str:
     expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    payload = {"sub": username, "exp": expire}
+    payload = {
+        "sub": username,
+        "exp": expire
+        }
     return jwt.encode(payload, PRIVATE_KEY, algorithm=ALGORITHM)
 
 def decode_gvt(token: str):

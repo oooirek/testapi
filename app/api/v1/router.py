@@ -31,18 +31,22 @@ async def add_task(
     ):
     user = request.state.user  # получаем пользователя из мидлвары
     if not user:
-        return {"Error": "Unauthorized"}
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    if not user.is_verified:
+        raise HTTPException(status_code=403, detail="User not verified")
+    
     task = await TaskRepository.create_task(
         session,
         title=task_create.title,
         description=task_create.description,
-        user_id=user.id
+        user_id=user.id,
         )
     return task
 
 
 @router.get("")
 async def get_all_task(
+
     session: AsyncSession = Depends(get_session)
     ):
     tasks = await TaskRepository.get_all_tasks(

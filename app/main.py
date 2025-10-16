@@ -1,12 +1,14 @@
 import uvicorn
 from fastapi import FastAPI
 
+from app.middleware.auth_middleware import verify_user_middleware
+
 from app.api.v1.router import router as tasks_router
 from app.api.v1.router import router_1 as tasks_router_1
 from app.auth.router import router as auth_router
 
 from fastapi.middleware.cors import CORSMiddleware
-from app.middleware.auth_middleware import AuthMiddleware
+
 
 from fastapi import FastAPI
 
@@ -29,7 +31,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.add_middleware(AuthMiddleware)
+# Middleware должно быть добавлено ДО роутеров
+app.middleware("http")(verify_user_middleware)
+
 app.include_router(tasks_router)
 app.include_router(tasks_router_1)
 app.include_router(auth_router)
